@@ -57,7 +57,7 @@ def read_input_files() -> dict[str, str]:
       - all files under /etc/sudoers.d/
     Returns a dictionary mapping filename -> file content.
     """
-    file_contents = {}
+    file_contents: dict[str, str] = {}
 
     # Read main sudoers file
     if os.path.exists("/etc/sudoers"):
@@ -118,7 +118,7 @@ def parse_file_content(input: dict[str, str]) -> list[SudoEntry]:
                     commands = [cmd.strip() for cmd in commands_unsplit.split(",")]
 
                     # Remove NOPASSWD from first command if present
-                    commands[0] = commands[0].removeprefix("NOPASSWD: ")
+                    commands[0] = commands[0].removeprefix("NOPASSWD:").strip()
 
                     parsed_entry = SudoEntry(
                         user=users if not users.startswith("%") else None,
