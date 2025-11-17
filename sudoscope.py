@@ -1,7 +1,7 @@
 import re
 from typing import override
 from colorama import Fore
-
+import os
 
 class SudoEntry:
     def __init__(
@@ -49,20 +49,37 @@ class SudoEntry:
 
 
 # Function to read input files (you can extend this to actually read files)
-def read_input_files() -> dict[str, str]:
-    # Example: Read a mock sudoers file content for demonstration
-    return {
-        "/etc/sudoers": """
-# Sample sudoers file
-# User privilege specification
-root    ALL=(ALL) ALL
-ubuntu  ALL=(ALL) NOPASSWD: /usr/bin/apt-get, /bin/ls
-%admin  ALL=(ALL) ALL
-guest   ALL=(ALL) NOPASSWD: /usr/bin/apt-get
-sysadmin ALL=(ALL) /usr/bin/apt-get, /usr/bin/reboot
-"""
-    }
 
+def read_input_files() -> dict[str, str]:
+    """
+    Reads sudo configuration files from the system:
+      - /etc/sudoers
+      - all files under /etc/sudoers.d/
+    Returns a dictionary mapping filename -> file content.
+    """
+    file_contents = {}
+
+    # Read main sudoers file
+    if os.path.exists("/etc/sudoers"):
+        try:
+            with open("/etc/sudoers", "r") as f:
+                file_contents["/etc/sudoers"] = f.read()
+        except Exception as e:
+            print(f"[WARNING] Could not read /etc/sudoers: {e}")
+
+    # Read additional sudoers files from /etc/sudoers.d
+    sudoers_d = "/etc/sudoers.d"
+    if os.path.isdir(sudoers_d):
+        for filename in os.listdir(sudoers_d):
+            path = os.path.join(sudoers_d, filename)
+            if os.path.isfile(path):
+                try:
+                    with open(path, "r") as f:
+                        file_contents[path] = f.read()
+                except Exception as e:
+                    print(f"[WARNING] Could not read {path}: {e}")
+
+    return file_contents
 
 # Function to parse file content
 def parse_file_content(input: dict[str, str]) -> list[SudoEntry]:
@@ -143,3 +160,4 @@ if __name__ == "__main__":
     input = read_input_files()
     parsed_results = parse_file_content(input)
     display_findings(parsed_results)
+

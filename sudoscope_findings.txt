@@ -1,0 +1,7 @@
+Sudo Access Findings:
+[32mUser[39m: root
+[31mALL COMMANDS[39m
+----------------------------------------
+[33mGroup[39m: admin
+[31mALL COMMANDS[39m
+----------------------------------------
